@@ -19,14 +19,15 @@
     --card: rgba(255,255,255,0.04);
     --border: rgba(255,255,255,0.09);
   }
+  html { scroll-behavior: smooth; }
   html, body { height: 100%; }
   body {
     font-family: 'Inter', -apple-system, 'Segoe UI', system-ui, sans-serif;
     background: var(--bg);
     color: var(--text);
-    min-height: 100%;
+    min-height: 100vh;
     display: flex;
-    align-items: center;
+    align-items: flex-start;      /* top-align so tall content isn't clipped */
     justify-content: center;
     overflow-x: hidden;
     position: relative;
@@ -105,6 +106,18 @@
 
   .platform { margin-top: 16px; font-size: 13px; color: var(--faint); }
 
+  .version-badge {
+    display: none;
+    margin: 12px auto 0;
+    width: fit-content;
+    font-size: 11.5px;
+    color: var(--muted);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 13px;
+  }
+
   .features {
     display: flex;
     flex-wrap: wrap;
@@ -121,6 +134,83 @@
     font-size: 13.5px;
     color: rgba(255,255,255,0.75);
   }
+
+  .downloads {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+  .dl-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 13px;
+    text-decoration: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 20px;
+    min-width: 172px;
+    transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
+  }
+  .dl-row:hover { border-color: rgba(139,92,246,0.5); transform: translateY(-2px); background: rgba(255,255,255,0.06); }
+  .dl-icon { width: 24px; height: 24px; color: var(--text); flex-shrink: 0; }
+  .dl-text { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+  .dl-os { font-weight: 600; font-size: 15px; color: var(--text); }
+  .dl-meta { font-size: 12px; color: var(--faint); }
+
+  /* macOS step-by-step install */
+  .mac-install {
+    margin-top: 44px;
+    text-align: left;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 26px 24px;
+  }
+  .mac-install h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 21px; font-weight: 600;
+    text-align: center; margin-bottom: 22px;
+  }
+  .step { margin-bottom: 22px; }
+  .step:last-child { margin-bottom: 0; }
+  .step-head {
+    display: flex; align-items: center; gap: 11px;
+    font-size: 14.5px; font-weight: 600; color: var(--text); margin-bottom: 11px;
+  }
+  .step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 25px; height: 25px; border-radius: 50%;
+    background: var(--grad); color: #fff; font-size: 13px; font-weight: 700; flex-shrink: 0;
+  }
+  .step-body { font-size: 13.5px; color: var(--muted); line-height: 1.65; padding-left: 36px; }
+  .step-body b { color: var(--text); }
+  .cmd {
+    position: relative;
+    margin-left: 36px;
+    background: #05050c;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 15px 92px 15px 16px;
+  }
+  .cmd code {
+    font-family: 'Consolas', 'SF Mono', monospace;
+    font-size: 12.5px; line-height: 1.6;
+    color: #c9d1ff;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .copy-cmd {
+    position: absolute; top: 11px; right: 11px;
+    background: var(--grad); color: #fff; border: none;
+    border-radius: 8px; padding: 7px 14px;
+    font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer;
+    transition: filter 0.15s ease;
+  }
+  .copy-cmd:hover { filter: brightness(1.1); }
 
   .note {
     margin-top: 40px;
@@ -153,13 +243,36 @@
     <h1>Ez<span class="ai">AI</span></h1>
     <p class="tagline">Your instant AI assistant — one keystroke away. Ask anything, read your screen, dictate with your voice, and get clean answers with no fluff.</p>
 
-    <a class="download" href="https://github.com/Moneyguy008/ezai/releases/latest/download/EzAi-Setup.exe">
+    <a id="primary-download" class="download" href="https://github.com/Moneyguy008/ezai/releases/latest/download/EzAi-Setup.exe">
       <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M10 3v10m0 0l-4-4m4 4l4-4M4 16h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      Download for Windows
+      <span id="primary-label">Download</span>
     </a>
-    <div class="platform">Free • Windows 10/11 • ~78 MB</div>
+    <div class="platform" id="primary-note">Free • pick your device</div>
+    <div class="version-badge" id="version-badge"></div>
+
+    <div class="downloads">
+      <a class="dl-row" href="https://github.com/Moneyguy008/ezai/releases/latest/download/EzAi-Setup.exe">
+        <svg class="dl-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/>
+          <rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/>
+        </svg>
+        <span class="dl-text">
+          <span class="dl-os">Windows</span>
+          <span class="dl-meta">.exe · Windows 10/11</span>
+        </span>
+      </a>
+      <a class="dl-row" href="#mac-install">
+        <svg class="dl-icon" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16.36 1.43c0 1.14-.42 2.22-1.12 3.02-.76.87-1.99 1.54-3.02 1.46-.13-1.09.44-2.24 1.09-2.96.72-.81 2-1.42 3.05-1.52zM20.5 17.02c-.55 1.27-.81 1.84-1.52 2.96-.99 1.57-2.39 3.52-4.12 3.53-1.54.02-1.93-1-4.02-.99-2.09.01-2.52 1.01-4.06.99-1.73-.02-3.05-1.78-4.04-3.35-2.77-4.37-3.06-9.5-1.35-12.22 1.21-1.94 3.13-3.08 4.93-3.08 1.84 0 3 1.01 4.52 1.01 1.48 0 2.38-1.01 4.51-1.01 1.6 0 3.3.87 4.51 2.38-3.96 2.17-3.32 7.83.11 9.78z"/>
+        </svg>
+        <span class="dl-text">
+          <span class="dl-os">macOS</span>
+          <span class="dl-meta">Install steps ↓</span>
+        </span>
+      </a>
+    </div>
 
     <div class="features">
       <div class="chip">⌨️ Global hotkey</div>
@@ -170,13 +283,85 @@
     </div>
 
     <p class="note">
-      After installing, open Settings and paste your free Google Gemini API key
+      <b>Windows:</b> download the file above, then <b>double-click EzAi-Setup.exe to run the installer</b>.
+      If a blue “Windows protected your PC” box pops up, click <b>More info → Run anyway</b>. It installs and opens on its own.
+      <br><br>
+      Once it's open, go to <b>Settings</b> and paste your free Google Gemini API key
       (<a href="https://aistudio.google.com/app/apikey">get one here</a>).
-      On first launch Windows may show a “Windows protected your PC” prompt — click
-      <b>More info → Run anyway</b> (it's unsigned, which is normal for indie apps).
+      Show/hide it anytime with <code>Ctrl</code>+<code>Space</code> (Windows) or <code>⌥ Option</code>+<code>Space</code> (Mac).
     </p>
 
-    <footer>Made with EzAi • Press the hotkey, ask away.</footer>
+    <div id="mac-install" class="mac-install">
+      <h2>Install on macOS</h2>
+
+      <div class="step">
+        <div class="step-head"><span class="step-num">1</span> Open Terminal</div>
+        <p class="step-body">Press <b>⌘ Command + Space</b>, type <b>Terminal</b>, and hit <b>Enter</b>. A black text window opens — that's it.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><span class="step-num">2</span> Paste this in and press Enter</div>
+        <p class="step-body">Click <b>Copy</b>, click into the Terminal window, paste (<b>⌘ Command + V</b>), and press <b>Enter</b>. It installs everything by itself — wait until it prints <b>Done</b>. No separate installer to run.</p>
+        <div class="cmd">
+          <code id="mac-cmd">curl -L -o EzAi.dmg "https://github.com/Moneyguy008/ezai-mac/releases/latest/download/EzAi.dmg" &amp;&amp; hdiutil attach EzAi.dmg -mountpoint /Volumes/EzAiInstall &amp;&amp; cp -R /Volumes/EzAiInstall/EzAi.app /Applications &amp;&amp; hdiutil detach /Volumes/EzAiInstall &amp;&amp; xattr -cr /Applications/EzAi.app &amp;&amp; echo Done</code>
+          <button class="copy-cmd" onclick="copyCmd(this)">Copy</button>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><span class="step-num">3</span> Open EzAi</div>
+        <p class="step-body">Open <b>Launchpad</b> (or your <b>Applications</b> folder) and click <b>EzAi</b>. Press <b>⌥ Option + Space</b> anytime to show or hide it.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><span class="step-num">4</span> Enable in Chrome (for reading your tab)</div>
+        <p class="step-body">In Chrome's top menu: <b>View → Developer → Allow JavaScript from Apple Events</b>.</p>
+      </div>
+
+      <div class="step">
+        <div class="step-head"><span class="step-num">5</span> Click Allow (first launch only)</div>
+        <p class="step-body">The first time, macOS asks <b>“EzAi wants to control Google Chrome”</b> — click <b>Allow</b>.</p>
+      </div>
+    </div>
   </div>
+
+  <script>
+    function copyCmd(btn) {
+      var cmd = document.getElementById('mac-cmd').textContent;
+      navigator.clipboard.writeText(cmd).then(function () {
+        btn.textContent = 'Copied';
+        setTimeout(function () { btn.textContent = 'Copy'; }, 1400);
+      });
+    }
+  </script>
+  <script>
+    (function () {
+      var ua = navigator.userAgent || '';
+      var plat = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+      var isMac = /Mac|iPhone|iPad|iPod/i.test(plat) || /Mac OS X/i.test(ua);
+      var WIN = 'https://github.com/Moneyguy008/ezai/releases/latest/download/EzAi-Setup.exe';
+      var btn = document.getElementById('primary-download');
+      var label = document.getElementById('primary-label');
+      var note = document.getElementById('primary-note');
+      if (isMac) {
+        btn.href = '#mac-install'; label.textContent = 'Install on macOS'; note.textContent = 'Free · macOS · 3 quick steps';
+      } else {
+        btn.href = WIN; label.textContent = 'Download for Windows'; note.textContent = 'Free · Windows 10/11';
+      }
+
+      // Show the latest release version, pulled live from GitHub.
+      fetch('https://api.github.com/repos/Moneyguy008/ezai/releases/latest')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (d && d.tag_name) {
+            var v = d.tag_name.charAt(0) === 'v' ? d.tag_name : 'v' + d.tag_name;
+            var badge = document.getElementById('version-badge');
+            badge.textContent = 'Latest version · ' + v;
+            badge.style.display = 'block';
+          }
+        })
+        .catch(function () {});
+    })();
+  </script>
 </body>
 </html>
